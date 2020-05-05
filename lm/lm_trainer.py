@@ -263,7 +263,9 @@ class SentenceMarginLossCalculator(SentenceNegLossCalculator):
         probs = torch.cat((gold_sent_probs, wrong_sent_probs), 1)
         targets = gold_sent_probs.new_zeros(gold_sent_probs.size(0), dtype=torch.long)
 
-        loss = self.margin_criterion(probs, targets)
+        # Fix unintended division by dimention number by the library.
+        # https://github.com/pytorch/pytorch/blob/v1.3.1/aten/src/THNN/generic/MultiMarginCriterion.c#L106
+        loss = self.margin_criterion(probs, targets) * 2.0
         return loss, loss, None
 
 class SentenceUnlikelihoodLossCalculator(SentenceNegLossCalculator):
@@ -468,7 +470,9 @@ class TokenMarginLossCalculator(TokenNegLossCalculator):
         wrong_probs = model.loss(masked_output, neg_targets, reduce=False) * -1.0
         probs = torch.cat((gold_probs, wrong_probs), 1)
         margin_targets = targets.new_zeros(probs.size(0))
-        neg_loss = self.margin_criterion(probs, margin_targets)
+        # Fix unintended division by dimention number by the library.
+        # https://github.com/pytorch/pytorch/blob/v1.3.1/aten/src/THNN/generic/MultiMarginCriterion.c#L106
+        neg_loss = self.margin_criterion(probs, margin_targets) * 2.0
 
         return neg_loss
 
@@ -523,7 +527,9 @@ class WithinBatchSentenceMarginLossCalculator(TokenNegLossCalculator):
         margin_targets = gold_sent_probs.new_zeros(gold_sent_probs_copy.size(0),
                                                    dtype=torch.long)
 
-        neg_loss = self.margin_criterion(probs, margin_targets)
+        # Fix unintended division by dimention number by the library.
+        # https://github.com/pytorch/pytorch/blob/v1.3.1/aten/src/THNN/generic/MultiMarginCriterion.c#L106
+        neg_loss = self.margin_criterion(probs, margin_targets) * 2.0
 
         return neg_loss
 
