@@ -476,8 +476,8 @@ def main():
                         help='put <eos> or <bos> (depending on --start-symbol) at the begin of a document')
     parser.add_argument('--start-symbol', default='<eos>', choices=['<eos>', '<bos>'])
     parser.add_argument('--shuffle', action='store_true')
-    parser.add_argument('--length-bucket', action='store_true')
-    parser.add_argument('--unkify', default='choe_charniak',
+    parser.add_argument('--length-bucket', action='store_true', help='If true, each mini-batch is created from larger buckets segmented by sentence lengths to make sentences in a batch have similar lengths.')
+    parser.add_argument('--unkify', default='unk',
                         choices=['choe_charniak', 'pos', 'unk'])
     parser.add_argument('--preproc', nargs='*', choices=['lower', 'delnum'], default=[])
     parser.add_argument('--min-counts', type=int, default=1)
@@ -501,7 +501,7 @@ def main():
                         help='If True, make the size of agreement batch as half')
     parser.add_argument('--one-pair-per-sent', action='store_true',
                         help='If True, only one agreement pair is generated for each sent.')
-    parser.add_argument('--agreement-sample-ratio', type=float, default=-1,
+    parser.add_argument('--agreement-sample-ratio', type=float, default=0.5,
                         help='If > 0, # batches for agreement becomes this ratio against the sentence batches; not compatible with --one-pair-per-sent and --upsample-agreement.')
     parser.add_argument('--validate-agreement', action='store_true',
                         help='If true, include agreement loss for early stopping.')
@@ -559,22 +559,22 @@ def main():
                         help='initial learning rate')
     parser.add_argument('--clip', type=float, default=0.25,
                         help='gradient clipping')
-    parser.add_argument('--epochs', type=int, default=8000,
+    parser.add_argument('--epochs', type=int, default=18,
                         help='upper epoch limit')
-    parser.add_argument('--batch_size', type=int, default=80, metavar='N',
+    parser.add_argument('--batch_size', type=int, default=128, metavar='N',
                         help='batch size')
     parser.add_argument('--bptt', type=int, default=70,
                         help='sequence length for bptt (only for document mode)')
-    parser.add_argument('--dropout', type=float, default=0.4,
+    parser.add_argument('--dropout', type=float, default=0.1,
                         help='dropout applied to layers (0 = no dropout)')
-    parser.add_argument('--dropouth', type=float, default=0.3,
+    parser.add_argument('--dropouth', type=float, default=0.1,
                         help='dropout for rnn layers (0 = no dropout)')
-    parser.add_argument('--dropouti', type=float, default=0.65,
+    parser.add_argument('--dropouti', type=float, default=0.1,
                         help='dropout for input embedding layers (0 = no dropout)')
-    parser.add_argument('--dropoute', type=float, default=0.1,
+    parser.add_argument('--dropoute', type=float, default=0.0,
                         help='dropout to remove words from embedding layer (0 = no dropout)')
     parser.add_argument('--lock-drop', action='store_false')
-    parser.add_argument('--wdrop', type=float, default=0.5,
+    parser.add_argument('--wdrop', type=float, default=0.0,
                         help='amount of weight dropout to apply to the RNN hidden to hidden matrix')
     parser.add_argument('--seed', type=int, default=1111,
                         help='random seed')
@@ -585,9 +585,9 @@ def main():
     randomhash = ''.join(str(time.time()).split('.'))
     parser.add_argument('--save', type=str,  default=randomhash+'.pt',
                         help='path to save the final model')
-    parser.add_argument('--alpha', type=float, default=2,
+    parser.add_argument('--alpha', type=float, default=0,
                         help='alpha L2 regularization on RNN activation (alpha = 0 means no regularization)')
-    parser.add_argument('--beta', type=float, default=1,
+    parser.add_argument('--beta', type=float, default=0,
                         help='beta slowness regularization applied on RNN activiation (beta = 0 means no regularization)')
     parser.add_argument('--wdecay', type=float, default=1.2e-6,
                         help='weight decay applied to all weights')
@@ -595,10 +595,10 @@ def main():
                         help='Which epoch to start LR decay. (-1 for never)')
     parser.add_argument('--plateau-lr-decay', action='store_true',
                         help='Reduce learning rate by a factor of --lr-decay-gamma when validation accuracy drops at a checkpoint.')
-    parser.add_argument('--start-plateau-lr-decay', type=int, default=11,
+    parser.add_argument('--start-plateau-lr-decay', type=int, default=5,
                         help='Minimum epoch to be judged to start plateau-lr-decay')
     parser.add_argument('--plateau-patience', type=int, default=1)
-    parser.add_argument('--lr-decay-gamma', type=float, default=0.92)
+    parser.add_argument('--lr-decay-gamma', type=float, default=0.5)
     parser.add_argument('--resume', type=str,  default='',
                         help='path of model to resume')
     parser.add_argument('--optimizer', type=str,  default='sgd',
@@ -607,7 +607,7 @@ def main():
                         help='In default, --optimizer=sgd means averaged SGD. This disables averaging.')
     parser.add_argument('--when', nargs="+", type=int, default=[-1],
                         help='When (which epochs) to divide the learning rate by 10 - accepts multiple')
-    parser.add_argument('--validate-batches', type=int, default=0,
+    parser.add_argument('--validate-batches', type=int, default=5000,
                         help='If 0, validate every epoch; if not 0, validate every # batches')
 
     parser.add_argument('--tied', action='store_false')
