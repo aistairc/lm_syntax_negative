@@ -70,7 +70,7 @@ python lm/train_lm.py --data data/gulordava_wiki --save models/lstm.pt --mode se
     --gpu 0 --seed 1111
 ```
 Please replace `--gpu 0` with the number of CUDA device you are using. Also, add `--amp`, if `apex` is available (see [Requirements](#requirements)).
-We experimented on five different seeds (1111, 111, 11, 12345, 54321) and reported averaged [syntactic scores](#syntactic_evaluation).
+We experimented on five different seeds (1111, 111, 11, 12345, 54321) and reported averaged [syntactic scores](#syntactic_evaluation) in our paper.
 A single training run takes around 26 hours on a single Tesla V100 GPU (16GB) without `--amp`.
 
 ### Training with additional margin losses
