@@ -1,9 +1,9 @@
 # Training RNN Language Models with Explicit Negative Examples
 
-This repository is an implementation of the paper [An analysis of the utility of explicit negative examples to improve the syntactic abilities of neural language models](https://arxiv.org/abs/2004.02451).
+This repository is an implementation of the paper [An analysis of the utility of explicit negative examples to improve the syntactic abilities of neural language models (Noji and Takamura 2019)](https://arxiv.org/abs/2004.02451).
 
-The repository contains the code for syntactic evaluation as a submodule, which we modify a bit for our experiments.
-To download all, run the following command.
+The repository contains the code for syntactic evaluation as a submodule, which we modify slightly for our experiments.
+To download including this model, run the following command.
 ```
 git clone --recursive https://github.com/aistairc/lm_syntax_negative.git
 ```
@@ -33,9 +33,9 @@ For training LMs, we used the same data as [Gulordava et al. (2018)](https://git
 First download the original data on `data` directory.
 ```
 mkdir -p data/gulordava_wiki; cd data/gulordava_wiki
-wget https://s3.amazonaws.com/colorless-green-rnns/training-data/English/train.txt
-wget https://s3.amazonaws.com/colorless-green-rnns/training-data/English/valid.txt
-wget https://s3.amazonaws.com/colorless-green-rnns/training-data/English/test.txt
+wget https://dl.fbaipublicfiles.com/colorless-green-rnns/training-data/English/train.txt
+wget https://dl.fbaipublicfiles.com/colorless-green-rnns/training-data/English/valid.txt
+wget https://dl.fbaipublicfiles.com/colorless-green-rnns/training-data/English/test.txt
 cd ../../
 ```
 
