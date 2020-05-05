@@ -68,13 +68,13 @@ python lm/train_lm.py --data data/gulordava_wiki --save models/lstm.pt --mode se
     --shuffle --length-bucket --non-average --plateau-lr-decay \
     --gpu 0 --seed 1111
 ```
-Please replace `--gpu 0` with the number of CUDA device you are using. Also, add `--amp`, if you `apex` is available (see [Requirements](#requirements)).
+Please replace `--gpu 0` with the number of CUDA device you are using. Also, add `--amp`, if `apex` is available (see [Requirements](#requirements)).
 We experimented on five different seeds (1111, 111, 11, 12345, 54321) and reported averaged [syntactic scores](#syntactic_evaluation).
-This takes around 26 hours on a single Tesla V100 GPU (16GB) without `--amp`.
+A single training run takes around 26 hours on a single Tesla V100 GPU (16GB) without `--amp`.
 
 ### Training with additional margin losses
 
-The following is the command for training the same architecture of the model with additonal token-level margin loss (margin value is `10`).
+The following is the command for training the model with the same architecture but with additonal token-level margin loss (margin value is `10`).
 This setting works the best in our experiments in the paper.
 The training time is almost the same as the original LSTM-LM.
 ```
@@ -101,7 +101,7 @@ python lm/train_lm.py --data data/gulordava_wiki --save models/sent_margin=10.pt
 
 The following is the command for training with a related loss, unlikelihood loss proposed in [Welleck et al. (2020)](https://openreview.net/forum?id=SJeYe0NtvH).
 `--agreement-loss-alpha 1000` means we amplify the negative loss by 1,000 times.
-Even with this, as we discussed in the paper, this loss does not outperform out proposed margin losses.
+Even with this, as we discussed in the paper, this loss does not outperform our proposed margin loss.
 ```
 python lm/train_lm.py --data data/gulordava_wiki --save models/unlikelihood=1000.pt --mode sentagree \
     --neg-mode token --target-syntax agreement reflexive \
@@ -112,8 +112,8 @@ python lm/train_lm.py --data data/gulordava_wiki --save models/unlikelihood=1000
 
 ## Syntactic evaluation
 
-We follow the same procedure as the evaluation code in [LM_syneval by Marvin and Linzen (2018)](https://github.com/BeckyMarvin/LM_syneval).
-Our `LM_syneval` directory includes some modification to externally call the script to run the trained LMs by above commands during evaluation.
+We follow the same procedure as the evaluation code in the original [LM_syneval](https://github.com/BeckyMarvin/LM_syneval) by Marvin and Linzen (2018).
+Our `LM_syneval` directory includes some modification to externally call the script to run our trained LMs on the test sentences.
 
 Evaluation comprises of two steps:
 
@@ -129,8 +129,8 @@ python LM_syneval/src/analyze_results.py --results_file syneval_out/lstm/results
 ```
 Then, this command will calculate the accuracies on each syntactic constructions, and summarize the results on `syneval_out/lstm/rnn/full_sent/overall_accs.txt`.
 
-*NOTE*: each original test sentence is uncased.
-We modify this and capitalize the first token before running LMs, assuming that uncased sentences are surprising and unnatural for LMs trained on the cased data.
+**NOTE**: each original test sentence is uncased.
+We modify this and capitalize the first token before running LMs, assuming that uncased sentences are surprising and unnatural for LMs trained on the cased sentences.
 This may provide some advantages and may partially explain some unexpected performance gap between our baseline LSTMs and other models that are also tuned but not performed well, such as [van Schijndel et al.](https://www.aclweb.org/anthology/D19-1592/), as pointed out by a recent [paper](https://arxiv.org/abs/2005.00187).
 
 ## Citation
