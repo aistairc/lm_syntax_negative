@@ -1,0 +1,3 @@
+[submodule "LM_syneval"]
+	path = LM_syneval
+	url = https://github.com/aistairc/LM_syneval
