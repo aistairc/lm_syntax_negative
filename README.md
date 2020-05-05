@@ -20,6 +20,7 @@ The tested Python version is 3.6. Following python moduels are required to be in
 
 - [PyTorch](https://pytorch.org) (tested version is 1.3.1, but later versions will probably work)
 - [inflect](https://pypi.org/project/inflect/) (4.1.0)
+- [progress](https://pypi.org/project/progress/)
 
 The following modules are required for data preprocessing.
 - [stanford-corenlp](https://pypi.org/project/stanford-corenlp/) (3.9.2)
@@ -115,19 +116,21 @@ python lm/train_lm.py --data data/gulordava_wiki --save models/unlikelihood=1000
 We follow the same procedure as the evaluation code in the original [LM_syneval](https://github.com/BeckyMarvin/LM_syneval) by Marvin and Linzen (2018).
 Our `LM_syneval` directory includes some modification to externally call the script to run our trained LMs on the test sentences.
 
+Here we show how to evaluate the syntactic performance of the baseline LSTM (`models/lstm.pt`).
 Evaluation comprises of two steps:
 
+The first step runs the trained LM on all test sentences and output log probabilities.
 ```
 export LM_OUTPUT=syneval_out/lstm
 mkdir -p ${LM_OUTPUT}
-python LM_syneval/src/LM_eval.py --model models/lstm.py --model_type myrnn --template_dir LM_syneval/EMNLP2018/emnlp2018 --myrnn_dir lm --lm_output ${LM_OUTPUT} --capitalize --gpu 0
+python LM_syneval/src/LM_eval.py --model models/lstm.pt --model_type myrnn --template_dir LM_syneval/EMNLP2018/templates --myrnn_dir lm --lm_output ${LM_OUTPUT} --capitalize --gpu 0
 ```
-This will run the trained LM (`models/lstm.py`) on all test sentences and output log probabilities.
 
+Then, the second step calculates the accuracies on each syntactic constructions.
 ```
 python LM_syneval/src/analyze_results.py --results_file syneval_out/lstm/results.pickle --model_type rnn --out_dir ${LM_OUTPUT} --mode full
 ```
-Then, this command will calculate the accuracies on each syntactic constructions, and summarize the results on `syneval_out/lstm/rnn/full_sent/overall_accs.txt`.
+The overall scores are stroed on `syneval_out/lstm/rnn/full_sent/overall_accs.txt`.
 
 **NOTE**: each original test sentence is uncased.
 We modify this and capitalize the first token before running LMs, assuming that uncased sentences are surprising and unnatural for LMs trained on the cased sentences.
