@@ -5,3 +5,4 @@ exp/qsub*/
 __pycache__/
 .ipynb_checkpoints/
 *.failed-*
+stanford-corenlp-*

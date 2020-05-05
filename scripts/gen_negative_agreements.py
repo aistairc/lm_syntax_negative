@@ -3,6 +3,7 @@ import argparse
 import corenlp
 import gzip
 import inflect
+from tqdm import tqdm
 
 def open_f(fn, mode='rt'):
         if fn.endswith('.gz'):
@@ -31,18 +32,19 @@ class VerbFinder(object):
                 conv[vbp] = vbz
         return conv
 
-    def find_all_verbs(self, fn, corenlp_host):
+    def find_all_verbs(self, fn):
         props = {"tokenize.whitespace": "true",
                  "ssplit.eolonly": "true",
                  "tokenize.options": "\"normalizeParentheses=true,normalizeOtherBrackets=true\""}
 
+        num_lines = sum(1 for line in open(fn, 'r'))
         with corenlp.CoreNLPClient(annotators="tokenize ssplit pos".split(),
                                    properties=props) as client, \
                                    open_f(args.source) as source:
             # To reduce network overhead we call corenlp on every chunk of 100 sentences.
             sents = []
             chunk_size = 100
-            for line in source:
+            for line in tqdm(source, total=num_lines):
                 if len(sents) >= chunk_size:
                     ann = client.annotate('\n'.join(sents))
                     assert(len(ann.sentence) == chunk_size)
@@ -84,7 +86,7 @@ class VerbFinder(object):
 
 def run(args):
     verb_finder = VerbFinder()
-    verb_finder.find_all_verbs(args.source, args.corenlp_host)
+    verb_finder.find_all_verbs(args.source)
 
     conv = verb_finder.get_converter()
     vbz_positions = verb_finder.vbz_positions

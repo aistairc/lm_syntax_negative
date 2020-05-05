@@ -21,14 +21,18 @@ The tested Python version is 3.6. Following python moduels are required to be in
 - [PyTorch](https://pytorch.org) (tested version is 1.3.1, but later versions will probably work)
 - [inflect](https://pypi.org/project/inflect/) (4.1.0)
 
-The following module is required for data preprocessing.
+The following modules are required for data preprocessing.
 - [stanford-corenlp](https://pypi.org/project/stanford-corenlp/) (3.9.2)
+- tqdm
 
 In addition to these, the training code also supports the use of NVIDIA [Apex](https://github.com/NVIDIA/apex). When `apex` is installed, by giving `--amp` to `train_lm.py`, the models are trained with mixed precision, which we found speed up the training by 1.3-1.5 times.
 
 ## Data Preparation
 
-For training LMs, we used the same data as [Gulordava et al. (2018)](https://github.com/facebookresearch/colorlessgreenRNNs), which is a collection of sentences sampled from English Wikipedia (80M/10M/10M tokens for train, valid, and test). Here we instruct how to train LSTMs with negative examples on this dataset but you could train your models on a different dataset. There is no restriction in the format of input data.
+For training LMs, we used the same data as [Gulordava et al. (2018)](https://github.com/facebookresearch/colorlessgreenRNNs), which is a collection of sentences sampled from English Wikipedia (80M/10M/10M tokens for train, valid, and test).
+
+Here we instruct how to train LSTMs with negative examples on this dataset but you could train your models on a different dataset.
+We assume the input data is a list of sentences, one sentence per line, as opposed to the data used for document-level LMs, such as WikiText-103.
 
 First download the original data on `data` directory.
 ```
@@ -51,11 +55,8 @@ Then, run the following commands to obtain the files recording negative examples
 
 ```
 export CORENLP_HOME=stanford-corenlp-full-2018-02-27
-./scripts/gen_negative_agreements.py --source data/gulordava_wiki/train.txt --output data/gulordava_wiki/negative_agreements.train.txt.gz
-./scripts/gen_negative_reflexives.py --source data/gulordava_wiki/train.txt --output data/gulordava_wiki/negative_reflexives.train.txt.gz
-この二つは、 valid の loss 計測が必要なければいらないかも
-# ./scripts/gen_negative_agreements.py --source data/gulordava_wiki/valid.txt --output data/gulordava_wiki/negative_agreements.valid.txt.gz
-# ./scripts/gen_negative_reflexives.py --source data/gulordava_wiki/valid.txt --output data/gulordava_wiki/negative_reflexives.valid.txt.gz
+python scripts/gen_negative_agreements.py --source data/gulordava_wiki/train.txt --output data/gulordava_wiki/negative_agreements.train.txt.gz
+python scripts/gen_negative_reflexives.py --source data/gulordava_wiki/train.txt --output data/gulordava_wiki/negative_reflexives.train.txt.gz
 ```
 
 ## Training LSTM-LMs
