@@ -134,6 +134,11 @@ tar xzvf models.tar.gz
 This will download 10 different models (baseline LSTMs and models with token margin = 10, with 5 different seeds for each).
 The file size is 1.5GB.
 
+Note that each LM is sentence level, so it would not work well for predicting next words across sentences.
+At training, each sentence is surrounded by `<eos>` so each input sentence looks like `<eos> w_1 w_2 ... w_n <eos>`.
+Thus, the models work best when giving `<eos>` as the beginning of a sentence.
+We did this preprocessing for syntactic evalution.
+
 ## Syntactic evaluation
 
 We follow the same procedure as the evaluation code in the original [LM_syneval](https://github.com/BeckyMarvin/LM_syneval) by Marvin and Linzen (2018).
