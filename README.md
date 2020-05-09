@@ -44,9 +44,20 @@ wget https://dl.fbaipublicfiles.com/colorless-green-rnns/training-data/English/t
 cd ../../
 ```
 
-### Preparing negative examples
+### Preparing negative examples (by downloading)
 
-Finding target verbs for negative examples require running Stanford CoreNLP. You need to download it first. We used the version 3.9.1.
+We uploaded the necessary files corresponding to the dataset above.
+```
+wget https://aist-plu-public.s3.abci.ai/lm/gulordava_wiki_negative.tar.gz
+tar xzvf gulordava_wiki_negative.tar.gz
+```
+
+### Preparing negative examples (by yourself)
+
+Or, you can create these files by yourself.
+This step is necessary if you want to train LMs on other datasets.
+
+Finding target verbs for negative examples requires running Stanford CoreNLP. You need to download it first. We used the version 3.9.1.
 ```
 wget http://nlp.stanford.edu/software/stanford-corenlp-full-2018-02-27.zip
 unzip stanford-corenlp-full-2018-02-27.zip
@@ -110,6 +121,18 @@ python lm/train_lm.py --data data/gulordava_wiki --save models/unlikelihood=1000
     --shuffle --length-bucket --non-average --plateau-lr-decay \
     --gpu 0 --seed 1111
 ```
+
+## Pretrained LMs
+
+We also uploaded some of our pretrained models.
+(Please contact us by issue or e-mail, `hiroshi.noji AT aist DOT go DOT jp` if you request other models.)
+```
+wget https://aist-plu-public.s3.abci.ai/lm/models.tar.gz
+tar xzvf models.tar.gz
+```
+
+This will download 10 different models (baseline LSTMs and models with token margin = 10, with 5 different seeds for each).
+The file size is 1.5GB.
 
 ## Syntactic evaluation
 
