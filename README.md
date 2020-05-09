@@ -44,7 +44,7 @@ wget https://dl.fbaipublicfiles.com/colorless-green-rnns/training-data/English/t
 cd ../../
 ```
 
-### Preparing negative examples (by downloading)
+### Preparing negative examples (by downloading existing files)
 
 We uploaded the necessary files corresponding to the dataset above.
 ```
@@ -52,7 +52,7 @@ wget https://aist-plu-public.s3.abci.ai/lm/gulordava_wiki_negative.tar.gz
 tar xzvf gulordava_wiki_negative.tar.gz
 ```
 
-### Preparing negative examples (by yourself)
+### Preparing negative examples (by creating by yourself)
 
 Or, you can create these files by yourself.
 This step is necessary if you want to train LMs on other datasets.
