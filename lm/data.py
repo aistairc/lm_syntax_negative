@@ -94,7 +94,8 @@ def add_symbols(sentences, is_tbptt, add_document_start, start_symbol):
     return decorated
 
 
-def read_sentences(path, is_tbptt = True, add_document_start = False, start_symbol = BOS):
+def read_sentences(path, is_tbptt = True, add_document_start = False, start_symbol = BOS,
+                   sentence_piece_model = None):
     """Return list of tokenized sentences.
 
     If `is_tbptt=False`, each sentence is later treated independently, and an <bos>
@@ -108,6 +109,10 @@ def read_sentences(path, is_tbptt = True, add_document_start = False, start_symb
     assert os.path.exists(path)
     sentences = []
 
+    sp = None
+    if sentence_piece_model is not None:
+        import sentencepiece as spm
+        sp = spm.SentencePieceProcessor(model_file=sentence_piece_model)
     if path.endswith('.gz'):
         def openf(p): return gzip.open(p, 'rt')
         # def decode(line): return line.decode('utf-8')
@@ -117,7 +122,11 @@ def read_sentences(path, is_tbptt = True, add_document_start = False, start_symb
         def decode(line): return line
     with openf(path) as f:
         for line in f:
-            sent = decode(line).strip().split(' ')
+            sent = decode(line).strip()
+            if sp is not None:
+                sent = sp.encode(sent, out_type=str)
+            else:
+                sent = sent.split()
             sentences.append(sent)
     return add_symbols(sentences, is_tbptt, add_document_start, start_symbol)
 
@@ -253,6 +262,12 @@ def build_vocab(sentences, min_occurs = 1, max_vocab_size = -1, unkifier=None, p
     # Guarantee that the padding token gets index 0
     # We always add `PAD` in the vocabulary, for interchaning at test time
     vocab.index(PAD)
+    # Always add <unk>; added 2021/1/8 to fix a problem that occured when
+    # processing subword-tokenized sentences. Since there is no unk in training
+    # data, there is a (small) possibility that some token in val (or test)
+    # sentences are unknown. To deal with this case, instead of defining vocab by
+    # reading sentencepiece model file, unk token is added here.
+    vocab.index(UNK)
 
     for sent in sentences:
         for w in sent:

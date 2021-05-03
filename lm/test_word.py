@@ -23,7 +23,7 @@ def run_test(args, device):
 
     ev = evaluator.SentenceEvaluator(pad_id)
 
-    sents = data.read_sentences(args.data, False, False, vocab.start_symbol)
+    sents = data.read_sentences(args.data, False, False, vocab.start_symbol, args.sentence_piece_model)
     if args.ignore_eos:
         assert sents[0][-2] == sents[0][-1] == data.EOS
         sents = [s[:-1] for s in sents] # remove dupicated EOS
@@ -48,6 +48,30 @@ def run_test(args, device):
             return gzip.open(fn, 'wt')
         else:
             return open(fn, 'w')
+
+    def resolve_subwords(pieces, piece_surps, piece_ents):
+        word_sent = []
+        sent_surps = []
+        sent_ents = []
+        is_intermediate = False
+        for i, piece in enumerate(pieces):
+            if is_intermediate:
+                if '▁' in piece:
+                    word_sent[-1] += piece[:-1]
+                    is_intermediate = False
+                else:
+                    word_sent[-1] += piece
+                sent_surps[-1] += piece_surps[i]
+            else:
+                if '▁' in piece:
+                    word_sent.append(piece[:-1])
+                else:
+                    word_sent.append(piece)
+                    is_intermediate = True
+                sent_surps.append(piece_surps[i])
+                sent_ents.append(piece_ents[i])
+
+        return word_sent, sent_surps, sent_ents
 
     with open_for_w(args.output) as o:
         if args.internal_token:
@@ -78,6 +102,8 @@ def run_test(args, device):
 
             for sent_surps, sent_ents in zip(surps, entropys):
                 sent = sents[sent_i][1:] # remove begin of sentence
+                if args.sentence_piece_model is not None:
+                    sent, sent_surps, sent_ents = resolve_subwords(sent, sent_surps, sent_ents)
                 assert len(sent) == len(sent_surps) == len(sent_ents)
                 for j, word in enumerate(sent[:-1]): # ignore eos for evaluation
                     o.write(report(word, sent_i, j, sent_surps, sent_ents))
@@ -98,6 +124,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int, default=50)
     parser.add_argument('--no-entropy', action='store_true')
     parser.add_argument('--capitalize', action='store_true')
+    parser.add_argument('--sentence_piece_model', default=None)
 
     args = parser.parse_args()
 
