@@ -1,6 +1,6 @@
 # Training RNN Language Models with Explicit Negative Examples
 
-This repository is an implementation of the paper [An analysis of the utility of explicit negative examples to improve the syntactic abilities of neural language models (Noji and Takamura 2019)](https://arxiv.org/abs/2004.02451).
+This repository is an implementation of the paper [An analysis of the utility of explicit negative examples to improve the syntactic abilities of neural language models (Noji and Takamura 2020)](https://arxiv.org/abs/2004.02451).
 
 The repository contains the code for syntactic evaluation as a submodule, which we modify slightly for our experiments.
 To download including this model, run the following command.
